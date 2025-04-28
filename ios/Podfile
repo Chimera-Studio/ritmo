@@ -1,17 +1,41 @@
-# Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+def node_require(script)
+  # Resolve script with node to allow for hoisting
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+      '#{script}',
+      {paths: [process.argv[1]]},
+    )", __dir__]).strip
+end
 
-# MIN_IOS_OVERRIDE = '14.0'
-# if Gem::Version.new(MIN_IOS_OVERRIDE) > Gem::Version.new(min_ios_version_supported)
-#     min_ios_version_supported = MIN_IOS_OVERRIDE
-# end
+node_require('react-native/scripts/react_native_pods.rb')
+node_require('react-native-permissions/scripts/setup.rb')
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
+
+# uncomment the permissions you need
+setup_permissions([
+  'AppTrackingTransparency',
+  # 'Bluetooth',
+  # 'Calendars',
+  # 'CalendarsWriteOnly',
+  # 'Camera',
+  # 'Contacts',
+  # 'FaceID',
+  # 'LocationAccuracy',
+  # 'LocationAlways',
+  # 'LocationWhenInUse',
+  # 'MediaLibrary',
+  # 'Microphone',
+  # 'Motion',
+  # 'Notifications',
+  # 'PhotoLibrary',
+  # 'PhotoLibraryAddOnly',
+  # 'Reminders',
+  # 'Siri',
+  # 'SpeechRecognition',
+  # 'StoreKit',
+])
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -33,21 +57,14 @@ target 'Ritmo' do
 
   pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
 
-  pod 'RNSound', :path => '../node_modules/react-native-sound'
-
   pod 'RNFS', :path => '../node_modules/react-native-fs'
 
   pod 'RNShare', :path => '../node_modules/react-native-share'
 
-  pod 'react-native-in-app-review', :path => '../node_modules/react-native-in-app-review'
-
   pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
-  # CUSTOM DEPS - END
 
-  target 'RitmoTests' do
-    inherit! :complete
-    # Pods for testing
-  end
+  pod 'react-native-in-app-review', :path => '../node_modules/react-native-in-app-review'
+  # CUSTOM DEPS - END
 
   post_install do |installer|
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202

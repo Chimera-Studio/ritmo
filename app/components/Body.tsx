@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { StatusBar, View } from 'react-native';
+import { PERMISSIONS, request } from 'react-native-permissions';
 import { NativeRouter, Route, Routes } from 'react-router-native';
+import { isApple } from '@app/utils';
 import Navigation from '@components/containers/navigation/Navigation';
 import Backgrounds from '@components/elements/backgrounds/Backgrounds';
 import Dev from '@components/screens/Dev';
@@ -14,6 +16,13 @@ import { useAppDispatch } from '@utils/hooks';
 function Body() {
   const dispatch = useAppDispatch();
   const initLoad = useRef(true);
+
+  useEffect(() => {
+    if (!isApple) return;
+
+    // The app code is not actually tracking anything but Apple says otherwise
+    request(PERMISSIONS.IOS.APP_TRACKING_TRANSPARENCY).catch(() => { });
+  }, []);
 
   useEffect(() => {
     if (!initLoad.current) return;
